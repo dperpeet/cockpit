@@ -25,7 +25,8 @@ define([
     "translated!base1/po",
     "base1/mustache",
     "system/journalctl",
-    "system/renderer"
+    "system/renderer",
+    "selectize"
 ], function($, cockpit, po, Mustache, journalctl, journal_renderer) {
     "use strict";
 
@@ -166,6 +167,17 @@ define([
     $('#journal-navigate-home').on("click", function() {
         cockpit.location.go('/');
     });
+
+    $('#journal-filter').selectize({
+            delimiter: ',',
+            persist: false,
+            create: function(input) {
+                return {
+                    value: input,
+                    text: input
+                };
+            }
+        });
 
     return update;
 });
