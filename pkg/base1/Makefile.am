@@ -136,6 +136,7 @@ update-lib:: update-bower
 	    $(BOWER)/jquery-flot/jquery.flot.selection.js \
 	    $(BOWER)/jquery-flot/jquery.flot.time.js \
 	    $(BOWER)/jquery-amend/jquery-amend.js \
+	    $(BOWER)/selectize/dist/js/standalone/selectize.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.js
 	$(JSMODULE) -o $(srcdir)/pkg/base1/jquery.min.js \
@@ -149,6 +150,7 @@ update-lib:: update-bower
 	    jquery.flot.selection.min.js \
 	    jquery.flot.time.min.js \
 	    jquery-amend.min.js \
+	    $(BOWER)/selectize/dist/js/standalone/selectize.min.js \
 	    $(srcdir)/pkg/base1/jquery-scoped.js \
 	    $(srcdir)/pkg/base1/attrchange.min.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/requirejs/require.js > require.min.js
@@ -162,7 +164,8 @@ update-lib:: update-bower
 	    $(srcdir)/pkg/base1/require-loaders.js
 	$(srcdir)/tools/cssbundle -o $(srcdir)/pkg/base1/patternfly.css \
 	    patternfly.css \
-	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css
+	    $(BOWER)/bootstrap-datepicker/dist/css/bootstrap-datepicker.css \
+      $(BOWER)/selectize/dist/css/selectize.default.css
 	$(JSMODULE) -o $(srcdir)/pkg/base1/mustache.js \
 		$(BOWER)/mustache/mustache.js
 	$(srcdir)/tools/uglifyjs $(BOWER)/mustache/mustache.js > \
