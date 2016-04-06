@@ -17,39 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-.setroubleshoot-log {
-    font-family: monospace;
-}
-
-.setroubleshoot-page {
-    width: 90%;
-}
-
-div#app h3 {
-    font-weight: bold;
-}
-
-/* from patternfly .list-view-pf-actions
- * update this when we update patternfly
- */
-.setroubleshoot-listing-action {
-    float: right;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    margin-top: 20px;
-    -ms-flex-order: 2;
-    order: 2;
-}
-
-.setroubleshoot-progress-spinner {
-    display: inline-block;
-}
-
-.setroubleshoot-progress-message {
-    vertical-align: top;
-}
-
-.curtains-relative {
-    height: 100%;
+.listing-view {
     width: 100%;
 }
