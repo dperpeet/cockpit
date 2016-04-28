@@ -65,6 +65,10 @@ var UserTerminal = React.createClass({displayName: "UserTerminal",
             this.state.channel.close();
             this.setState({ channel: this.createChannel() });
         }
+
+        // don't focus the button, but keep it on the terminal
+        this.refs.resetButton.blur();
+        this.refs.terminal.focus();
     },
 
     render: function () {
