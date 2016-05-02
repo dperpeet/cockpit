@@ -1,10 +1,10 @@
 require([
     "react",
     "base1/cockpit",
-    "base1/cockpit-components",
+    "base1/cockpit-components-terminal",
     "base1/term",
     "translated!base1/po",
-], function(React, cockpit, components, Terminal, po) {
+], function(React, cockpit, cockpitTerminal, Terminal, po) {
 
 "use strict";
 
@@ -74,7 +74,7 @@ var UserTerminal = React.createClass({displayName: "UserTerminal",
     render: function () {
         var terminal;
         if (this.state.channel)
-            terminal = <components.Terminal ref="terminal"
+            terminal = <cockpitTerminal.Terminal ref="terminal"
                                             className="console"
                                             channel={this.state.channel}
                                             onTitleChanged={this.onTitleChanged} />;
