@@ -235,7 +235,7 @@ var show_modal_dialog = function(dialogProps, footerProps) {
 
     // register our own on-close callback
     var origCallback = null;
-    if (typeof(footerProps) === 'object' && 'dialog_done' in footerProps)
+    if (footerProps && 'dialog_done' in footerProps)
         origCallback = footerProps.dialog_done;
     var closeCallback = function(args) {
         if (origCallback)
