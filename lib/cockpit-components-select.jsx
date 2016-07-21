@@ -16,11 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-define([
-    "./react",
-    "base1/cockpit",
-], function(React, cockpit) {
-
+(function (root, factory) {
+    /* globals module */
+    if (typeof exports === 'object') {
+        module.exports = factory(require('react'), require('cockpit'));
+    } else if (typeof define === 'function' && define.amd) {
+        define(['./react', 'base1/cockpit'], factory);
+    }
+}(this, function(React, cockpit) {
     "use strict";
     var _ = cockpit.gettext;
 
@@ -142,4 +145,4 @@ define([
         SelectEntry: SelectEntry,
     };
 
-});
+}));

@@ -21,11 +21,11 @@
     "use strict";
 
     var cockpit = require("cockpit");
-    var cockpit = require("react");
-    var subscriptionsClient = require("subscriptions-client");
-    var subscriptionsRegister = require("subscriptions-register");
-    var subscriptionsView = require("subscriptions-view");
-    var Dialog = require("cockpit-components-dialog");
+    var React = require("react");
+    var subscriptionsClient = require("./subscriptions-client.js");
+    var subscriptionsRegister = require("./subscriptions-register.jsx");
+    var subscriptionsView = require("./subscriptions-view.jsx");
+    var Dialog = require("./cockpit-components-dialog.jsx");
 
 
     var _ = cockpit.gettext;
