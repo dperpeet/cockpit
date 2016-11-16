@@ -34,7 +34,7 @@ def main():
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Verbose output')
-    parser.add_argument('--publish', dest='publish', action='store',
+    parser.add_argument('--publish', dest='publish', action='store_true',
                         help='Publish results centrally to a sink')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--head', dest='head', action='store_true',
