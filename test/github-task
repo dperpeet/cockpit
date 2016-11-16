@@ -36,16 +36,21 @@ def main():
                         help='Verbose output')
     parser.add_argument('--publish', dest='publish', action='store',
                         help='Publish results centrally to a sink')
-    parser.add_argument('--head', dest='head', action='store_true',
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--head', dest='head', action='store_true',
                         help='Instead of choosing from GitHub, perform the specified task on HEAD')
-    parser.add_argument('--refresh', action='store',
+    group.add_argument('--refresh', action='store',
                         help='Instead of choosing from GitHub, refresh the given image')
+    group.add_argument('--pullid', dest='pullid', action='store',
+                        help='Instead of choosing from GitHub, perform the specified task on a pull request (e.g. 4500, "master" or a commit checksum)')
     parser.add_argument('--except', dest='except_context', action='store_true',
                         help='Choose tasks from any context except the one specified')
     parser.add_argument('-n', '--name', dest='name',
                         default='pull', help='Name of the testing task, used for the identifier. Examples: "master", "pull-1234"')
     parser.add_argument('-o', '--offline', action='store_true',
                         help='Work offline, don''t fetch new data from origin for rebase')
+    parser.add_argument('-f', '--force', dest='force', action='store_true',
+                        help='Force testing even if automatic testing wouldn''t')
     parser.add_argument('context', action='store', nargs='?',
                         help='The test context to choose tasks from')
     opts = parser.parse_args()
@@ -74,11 +79,22 @@ def main():
             print "Unable to contact GitHub in offline mode"
             return 1
         sys.stderr.write("Talking to GitHub ...\n")
-        task_entries = github.scan(opts.publish, opts.context, opts.except_context)
-        if len(task_entries) > 0:
+        if opts.pullid:
+            context = opts.context or "verify/" + testinfra.DEFAULT_IMAGE
+            task_entries = github.scan(opts.publish, context, opts.except_context, opts.pullid, force_run=opts.force)
+            if not task_entries:
+                # Nothing to test
+                return 1
+            if opts.verbose:
+                for entry in task_entries:
+                    sys.stdout.write("{0}: {1}\n".format(int(entry.priority), entry.task.description()))
             task = task_entries[0].task
-        else: # Nothing to test
-            return 1
+        else:
+            task_entries = github.scan(opts.publish, opts.context, opts.except_context)
+            if len(task_entries) > 0:
+                task = task_entries[0].task
+            else: # Nothing to test
+                return 1
 
     ret = task.run(opts, github)
     if isinstance(ret, basestring):

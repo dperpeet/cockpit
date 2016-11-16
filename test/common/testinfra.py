@@ -478,7 +478,7 @@ class GitHub(object):
             self.priority = priority
             self.task = task
 
-    def prioritize(self, status, labels, priority, context):
+    def prioritize(self, status, labels, priority, context, force_run=False):
         state = status.get("state", None)
         update = { "state": "pending" }
 
@@ -519,14 +519,14 @@ class GitHub(object):
             priority -= random.randint(1, 2)
 
         if update:
-            if priority <= 0:
+            if not force_run and priority <= 0:
                 update["description"] = NO_TESTING
             else:
                 update["description"] = NOT_TESTED
 
         return [priority, update]
 
-    def scan_for_pull_tasks(self, update, context, except_context=False):
+    def scan_for_pull_tasks(self, update, context, except_context=False, specific_pull=None, force_run=False):
         contexts = DEFAULT_VERIFY
         if context:
             for ctx in contexts.keys():
@@ -536,7 +536,6 @@ class GitHub(object):
                 else:
                     if context not in ctx:
                         contexts.pop(ctx)
-
         results = []
         master_contexts = []
         pull_contexts = []
@@ -562,17 +561,20 @@ class GitHub(object):
         if master_contexts:
             master = self.get("git/refs/heads/master")
             revision = master["object"]["sha"]
-            statuses = self.statuses(revision)
-            for context in master_contexts:
-                status = statuses.get(context, { })
-                (priority, changes) = self.prioritize(status, [], 8, context)
-                if update_status(revision, context, status, changes):
-                    results.append(GitHub.TaskEntry(priority, GithubPullTask("master", revision, "master", context)))
+            if not specific_pull or (specific_pull == 'master') or (specific_pull == revision):
+                statuses = self.statuses(revision)
+                for context in master_contexts:
+                    status = statuses.get(context, { })
+                    (priority, changes) = self.prioritize(status, [], 8, context, force_run=specific_pull)
+                    if update_status(revision, context, status, changes):
+                        results.append(GitHub.TaskEntry(priority, GithubPullTask("master", revision, "master", context)))
 
         for pull in self.pulls():
             number = pull["number"]
             labels = self.labels(number)
             revision = pull["head"]["sha"]
+            if specific_pull and (str(number) != specific_pull) and (specific_pull != revision):
+                continue
             statuses = self.statuses(revision)
             login = pull["head"]["user"]["login"]
             base = pull["base"]["ref"]  # The branch this pull request targets
@@ -598,7 +600,9 @@ class GitHub(object):
                     if status.get("description", NO_TESTING) == NO_TESTING:
                         baseline = 0
 
-                (priority, changes) = self.prioritize(status, labels, baseline, context)
+                (priority, changes) = self.prioritize(status, labels, baseline, context, force_run=specific_pull)
+                if specific_pull and force_run:
+                    priority = BASELINE_PRIORITY
                 if update_status(revision, context, status, changes):
                     pulltask = GithubPullTask("pull-%d" % number, revision, "pull/%d/head" % number, context, base)
                     results.append(GitHub.TaskEntry(priority, pulltask))
@@ -669,13 +673,16 @@ class GitHub(object):
     #
     # When context is not set, we scan for both pull requests (for any
     # context) and image refreshes.
+    #
+    # specific_pull can be a pull request id or "master" to pick tasks
+    # from said pull request
 
-    def scan(self, update, context, except_context=False):
-        task_entries = self.scan_for_pull_tasks(update, context, except_context)
+    def scan(self, update, context, except_context=False, specific_pull=None, force_run=False):
+        task_entries = self.scan_for_pull_tasks(update, context, except_context, specific_pull, force_run)
 
         # Add image tasks, but only if we are not explicitly scanning
         # for a pull context.
-        if not context:
+        if not context and specific_pull == None:
             task_entries += self.scan_for_image_tasks()
 
         # Only work on tasks that have a priority greater than zero
