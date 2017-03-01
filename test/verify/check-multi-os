@@ -23,9 +23,13 @@ from testlib import *
 
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
-        """(function (expected) {
-        var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-        return expected.sort().toString() == addresses.sort().toString();
+        """(function(expected) {
+            var addresses = $('#dashboard-hosts .list-group-item')
+                .map(function(i,e) {
+                    return $(e).data("address");
+                })
+                .get();
+            return expected.sort().toString() == addresses.sort().toString();
         })""", expected)
 
 def old_add_machine(b, address):

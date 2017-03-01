@@ -32,16 +32,24 @@ class DashBoardHelpers:
 
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_func(
-            """(function (expected) {
-                var actual = $('#dashboard_setup_server_dialog datalist option').map(function(i,e) { return $(e).val() }).get();
+            """(function(expected) {
+                var actual = $('#dashboard_setup_server_dialog datalist option')
+                    .map(function(i,e) {
+                        return $(e).val();
+                    })
+                    .get();
                 return expected.sort().toString() == actual.sort().toString();
                 })""", expected)
 
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
-            """(function (expected) {
-            var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-            return expected.sort().toString() == addresses.sort().toString();
+            """(function(expected) {
+                var addresses = $('#dashboard-hosts .list-group-item')
+                    .map(function(i,e) {
+                        return $(e).data("address");
+                    })
+                    .get();
+                return expected.sort().toString() == addresses.sort().toString();
             })""", expected)
 
     def machine_remove(self, b, address):
