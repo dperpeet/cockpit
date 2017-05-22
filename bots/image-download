@@ -237,6 +237,9 @@ def get_image_names(quiet=False, open_pull_requests=True, offline=False):
         for name, ref in refs.items():
             if not quiet:
                 sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
+            # DEPRECATED old branches may still have images in test/images
+            for link in get_image_links(ref, "test/images"):
+                images.add(link)
             for link in get_image_links(ref, "bots/images"):
                 images.add(link)
 
@@ -249,28 +252,6 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
 
     # everything we want to keep
     targets = get_image_names(quiet, open_pull_requests, offline)
-    def maybe_add_target(target):
-        # if the path isn't absolute, it can resolve to either the images directory or here (might be the same)
-        if not os.path.isabs(target):
-            targets.add(os.path.join(IMAGES, target))
-            targets.add(os.path.join(DATA, target))
-        else:
-            targets.add(target)
-
-    # iterate over all visible refs (mostly branches)
-    # this hinges on being in the top level directory of the the git checkout
-    with remember_cwd():
-        os.chdir(os.path.join(BOTS, ".."))
-        refs = get_refs()
-        # list images present in each branch
-        for name, ref in refs.items():
-            if not quiet:
-                sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
-            # DEPRECATED old branches may still have images in test/images
-            for link in get_image_links(ref, "test/images"):
-                maybe_add_target(link)
-            for link in get_image_links(ref, "bots/images"):
-                maybe_add_target(link)
 
     # what we have in the current checkout might already have been added by its branch, but check anyway
     for filename in os.listdir(IMAGES):
@@ -281,7 +262,11 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
             continue
 
         target = os.readlink(path)
-        maybe_add_target(target)
+        if not os.path.isabs(target):
+            targets.add(os.path.join(IMAGES, target))
+            targets.add(os.path.join(DATA, target))
+        else:
+            targets.add(target)
 
     expiry_threshold = now - IMAGE_EXPIRE * 86400
     for filename in os.listdir(DATA):
